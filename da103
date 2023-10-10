@@ -1,0 +1,47 @@
+Advanced SQL
+  
+   Week 1
+  
+   Combining Data With Multiple Joins
+  --------------------------------------
+
+  --For the flight routes highlighted in question 4 combined, would there have been an aircraft that, on average, would use less fuel on the flight routes? 
+
+--The fuel used in liters per flight can be calculated by multiplying the fuel efficiency metric by distance, baggage weight, and number of passengers. 
+
+--What aircraft (manufacturer and sub-type) would you recommend to use for each of these flight routes if you use the average fuel consumption as your guiding metric?
+
+--If the manufacturer and sub-type are not available for flights, we do not need to show the results of these flights.
+
+
+SELECT 
+    aircraft.manufacturer
+    , aircraft.ac_subtype
+    , AVG(fuel.fuel_efficiency * flights.total_passengers * flights.baggage_weight * routes.distance_flown) AS avg_fuel_consumption
+
+FROM ba_flights flights
+
+LEFT JOIN ba_flight_routes routes ON flights.flight_number = routes.flight_number
+INNER JOIN ba_aircraft aircraft ON flights.flight_id = aircraft.flight_id
+LEFT JOIN ba_fuel_efficiency fuel on aircraft.ac_subtype = fuel.ac_subtype
+
+WHERE 1=1
+   AND routes.departure_city in ('London')
+   AND routes.arrival_city in ('Basel', 'Trondheim', 'Glasgow') 
+   AND aircraft.manufacturer IS NOT NULL
+   AND aircraft.ac_subtype IS NOT NULL
+
+GROUP BY aircraft.manufacturer
+    , aircraft.ac_subtype
+
+ORDER BY avg_fuel_consumption
+--LIMIT 1
+;
+
+
+  Week 2
+
+  Cleaning and Analyzing Messy Data
+  -----------------------------------------
+
+  
