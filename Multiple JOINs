@@ -1,0 +1,297 @@
+-- Desired output ->
+-- Tables needed ->
+-- Columns needed ->
+-- Functions needed ->
+-- Filters needed ->
+
+
+--Question #1: 
+ --Create a list of flights, showing the flight ID, departure city, arrival city, manufacturer, and aircraft sub-type that will be used for each flight
+
+ --Show the results for all flights that are available even if not all information is available for all flights.
+ 
+ 
+SELECT flight.flight_id,
+			 route.departure_city,
+       route.arrival_city,
+       aircraft.manufacturer,
+       aircraft.ac_subtype
+
+FROM ba_flights flight
+		 LEFT JOIN ba_flight_routes route ON flight.flight_number = route.flight_number
+     LEFT JOIN ba_aircraft aircraft ON flight.flight_id = aircraft.flight_id
+
+;
+
+
+--Question #2: 
+ --What is the maximum number of passengers that have been on every available aircraft (manufacturer and sub-type) for flights that have been completed?
+
+ --If the manufacturer and sub-type are not available for flights, we do not need to show the results of these flights.
+ 
+
+SELECT aircraft.manufacturer,
+       aircraft.ac_subtype,
+       MAX(flight.total_passengers) AS max_passengers
+
+FROM ba_flights flight
+     INNER JOIN ba_aircraft aircraft ON flight.flight_id = aircraft.flight_id
+     
+WHERE flight.status = 'Completed'  
+
+GROUP BY aircraft.manufacturer,
+    	   aircraft.ac_subtype
+
+
+
+
+--Question #3: 
+ --Since only some aircraft are capable of flying long distances overseas, we want to filter out the planes that only do shorter distances.
+
+ --What aircraft (manufacturer and sub-type) have completed flights of a distance of more than 7,000 km? 
+
+ --If the manufacturer and sub-type are not available for flights, we do not need to show the results of these flights.
+
+SELECT DISTINCT aircraft.manufacturer,
+       aircraft.ac_subtype
+
+FROM ba_flights flight
+
+INNER JOIN ba_aircraft aircraft ON flight.flight_id = aircraft.flight_id
+INNER JOIN ba_flight_routes route ON flight.flight_number = route.flight_number
+     
+WHERE flight.status = 'Completed' 
+			AND route.distance_flown > 7000
+
+--The same answer can be achieved using GROUP BY
+--LEFT JOIN would work for the ba_flight_routes join as well
+
+
+
+
+--Question #4: 
+--What is the most used aircraft (manufacturer and sub-type) for flights departing from London and arriving in Basel, Trondheim, or Glasgow? 
+
+--Include the number of flights that the aircraft was used for.
+
+--If the manufacturer and sub-type are not available for flights, we do not need to show the results of these flights.
+
+
+SELECT 
+    aircraft.manufacturer
+    , aircraft.ac_subtype
+    , COUNT(distinct aircraft.flight_id) AS total_flights
+
+FROM ba_flights flights
+
+LEFT JOIN ba_aircraft aircraft ON flights.flight_id = aircraft.flight_id
+LEFT JOIN ba_flight_routes routes ON flights.flight_number = routes.flight_number
+
+WHERE 1=1
+   AND lower(routes.departure_city) = 'london'
+   AND routes.arrival_city in ('Basel', 'Trondheim', 'Glasgow') 
+   AND aircraft.manufacturer IS NOT NULL
+   AND aircraft.ac_subtype IS NOT NULL
+
+GROUP BY aircraft.manufacturer
+    , aircraft.ac_subtype
+
+ORDER BY total_flights desc
+
+LIMIT 1
+;
+
+
+--Question #5: 
+--For the flight routes highlighted in question 4 combined, would there have been an aircraft that, on average, would use less fuel on the flight routes? 
+
+--The fuel used in liters per flight can be calculated by multiplying the fuel efficiency metric by distance, baggage weight, and number of passengers. 
+
+--What aircraft (manufacturer and sub-type) would you recommend to use for each of these flight routes if you use the average fuel consumption as your guiding metric?
+
+--If the manufacturer and sub-type are not available for flights, we do not need to show the results of these flights.
+
+
+SELECT 
+    aircraft.manufacturer
+    , aircraft.ac_subtype
+    , AVG(fuel.fuel_efficiency * flights.total_passengers * flights.baggage_weight * routes.distance_flown) AS avg_fuel_consumption
+
+FROM ba_flights flights
+
+LEFT JOIN ba_flight_routes routes ON flights.flight_number = routes.flight_number
+INNER JOIN ba_aircraft aircraft ON flights.flight_id = aircraft.flight_id
+LEFT JOIN ba_fuel_efficiency fuel on aircraft.ac_subtype = fuel.ac_subtype
+
+WHERE 1=1
+   AND routes.departure_city in ('London')
+   AND routes.arrival_city in ('Basel', 'Trondheim', 'Glasgow') 
+   AND aircraft.manufacturer IS NOT NULL
+   AND aircraft.ac_subtype IS NOT NULL
+
+GROUP BY aircraft.manufacturer
+    , aircraft.ac_subtype
+
+ORDER BY avg_fuel_consumption
+--LIMIT 1
+;
+
+
+--Question #6: 
+--The fuel used in liters per flight can be calculated by multiplying the fuel efficiency metric by distance, baggage weight, and number of passengers. 
+
+--Calculate the total amount of fuel used per kilometer flown of completed flights per manufacturer. 
+--What manufacturer has used less fuel per km in total?
+
+--If flights do not have data available about the aircraft type, you can exclude the flights from the analysis.
+
+
+SELECT 
+    aircraft.manufacturer
+    , SUM(fuel.fuel_efficiency * flights.total_passengers * flights.baggage_weight * routes.distance_flown)/SUM(distance_flown) AS avg_fuel_consumption
+
+FROM ba_flights flights
+
+LEFT JOIN ba_flight_routes routes ON flights.flight_number = routes.flight_number
+INNER JOIN ba_aircraft aircraft ON flights.flight_id = aircraft.flight_id
+LEFT JOIN ba_fuel_efficiency fuel on aircraft.ac_subtype = fuel.ac_subtype
+
+WHERE 1=1
+   AND flights.status = 'Completed'
+
+GROUP BY aircraft.manufacturer
+;
+
+DA401
+-- Show me all flight_numbers, status, fuel_effiency and total baggage_weight for flights where the manufacturer is Airbus.
+
+-- Hint: you can use ac_subtype and flight_id as a join keys
+
+SELECT
+    flights.flight_number
+    , flights.status
+    , fuel.fuel_efficiency
+    , SUM(flights.baggage_weight) AS total_baggage_weight
+FROM ba_flights flights
+  LEFT JOIN ba_aircraft aircraft on flights.flight_id = aircraft.flight_id
+  LEFT JOIN ba_fuel_efficiency fuel ON aircraft.ac_subtype = fuel.ac_subtype
+WHERE 1=1
+    AND aircraft.manufacturer = 'Airbus'
+GROUP BY flights.flight_number
+    , flights.status
+    , fuel.fuel_efficiency
+;
+
+--Show me all flight_numbers that fly for 1000+ miles, with ac_subtype, departure & arrival city and 0 passengers on board.
+
+--HINT: you can use flight_number and flight_id as JOIN keys.
+
+
+SELECT
+    flights.flight_number
+    , aircraft.ac_subtype
+    , routes.departure_city
+    , routes.arrival_city
+FROM ba_flights flights
+  LEFT JOIN ba_flight_routes routes on flights.flight_number = routes.flight_number
+  LEFT JOIN ba_aircraft aircraft on flights.flight_id = aircraft.flight_id
+WHERE 1=1
+    AND routes.distance_flown >= 1000
+    AND flights.total_passengers = 0
+;
+
+
+
+-- Show me all flight_numbers, status, fuel_effiency and total baggage_weight for flights where the manufacturer is Airbus.
+
+-- Hint: you can use ac_subtype and flight_id as a join keys
+
+SELECT
+    flights.flight_number
+    , flights.status
+    , fuel.fuel_efficiency
+    , SUM(flights.baggage_weight) AS total_baggage_weight
+FROM ba_flights flights
+  LEFT JOIN ba_aircraft aircraft on flights.flight_id = aircraft.flight_id
+  LEFT JOIN ba_fuel_efficiency fuel ON aircraft.ac_subtype = fuel.ac_subtype
+WHERE 1=1
+    AND aircraft.manufacturer = 'Airbus'
+GROUP BY flights.flight_number
+    , flights.status
+    , fuel.fuel_efficiency
+;
+
+
+--Show me all flight_numbers that fly for 1000+ miles, with ac_subtype, departure & arrival city and 0 passengers on board.
+
+--HINT: you can use flight_number and flight_id as JOIN keys.
+
+
+SELECT
+    flights.flight_number
+    , aircraft.ac_subtype
+    , routes.departure_city
+    , routes.arrival_city
+FROM ba_flights flights
+  LEFT JOIN ba_flight_routes routes on flights.flight_number = routes.flight_number
+  LEFT JOIN ba_aircraft aircraft on flights.flight_id = aircraft.flight_id
+WHERE 1=1
+    AND routes.distance_flown >= 1000
+    AND flights.total_passengers = 0
+;
+
+
+
+--Show me the number of flights per arrival & departure city where there is no listed ac_subtype.
+
+--Show output in descending order by number of flights.
+
+--Hint: you can filter for NULL values using WHERE <column> IS NULL (or IS NOT NULL)
+
+SELECT
+   routes.arrival_city
+   , routes.departure_city
+   , COUNT(DISTINCT flights.flight_id) AS total_flights
+FROM ba_flight_routes routes
+   LEFT JOIN ba_flights flights on routes.flight_number = flights.flight_number
+   LEFT JOIN ba_aircraft aircraft on flights.flight_id = aircraft.flight_id
+WHERE 1=1
+   AND aircraft.ac_subtype IS NULL
+GROUP BY 
+     routes.arrival_city
+   , routes.departure_city
+ORDER BY 
+    total_flights DESC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
