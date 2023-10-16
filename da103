@@ -1,9 +1,11 @@
 Advanced SQL
   
    Week 1
-  
+
+
+------------------------------------------
    Combining Data With Multiple Joins
-  --------------------------------------
+------------------------------------------
 
   --For the flight routes highlighted in question 4 combined, would there have been an aircraft that, on average, would use less fuel on the flight routes? 
 
@@ -39,9 +41,48 @@ ORDER BY avg_fuel_consumption
 ;
 
 
+
+
   Week 2
 
+-------------------------------------------
   Cleaning and Analyzing Messy Data
-  -----------------------------------------
+-------------------------------------------
 
-  
+/*Your manager wants to analyze the marketing spend percentage by country, but the data is not 100% clean. He mentions that you can clean the country field by using the sales team information, and shared the following mapping with you: 
+
+UK = United Kingdom
+FR = France
+ES = Spain
+IT = Italy
+DACH = Germany
+
+What is the average marketing spend percentage per country?
+*/
+
+SELECT * FROM meta_clients
+
+SELECT 
+     CASE 
+         WHEN sales_team LIKE '%_FR_%' THEN 'France'
+         WHEN sales_team LIKE '%_UK_%' THEN 'United Kingdom'
+         WHEN sales_team LIKE '%_ES_%' THEN 'Spain'
+         WHEN sales_team LIKE '%_IT_%' THEN 'Italy'
+         WHEN sales_team LIKE '%_DACH_%' THEN 'Germany'
+      ELSE 'REGION'
+      END AS clean_country
+       , AVG(marketing_spend_perc)
+FROM meta_clients
+GROUP BY 
+        clean_country
+    
+
+WEEK 3
+
+---------------
+    CTE'S
+---------------
+
+
+
+
