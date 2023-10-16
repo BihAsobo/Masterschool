@@ -3,7 +3,7 @@ Basic & Intermediate SQL
 
 
 -----------------------------------------------------
-    Combining two filter conditions using OR
+   --- Combining two filter conditions using OR ---
 -----------------------------------------------------
 
 SELECT
@@ -22,9 +22,9 @@ WHERE 1=1
 
 
 
-----------------------------------------------------
-Combining an OR statement with a third condition
-----------------------------------------------------
+-------------------------------------------------------------
+  --- Combining an OR statement with a third condition ---
+-------------------------------------------------------------
 
 SELECT 
     flight_number
@@ -43,9 +43,9 @@ WHERE 1=1
 
 
 
-----------------------------------------------
-Aggregating and Grouping Data using CASE WHEN
-----------------------------------------------
+----------------------------------------------------------
+  --- Aggregating and Grouping Data using CASE WHEN ---
+----------------------------------------------------------
 
 
 SELECT
@@ -116,9 +116,9 @@ ORDER BY sales_segment
 WEEK 3 
   
 
---------------
-    UNION's 
---------------    
+--------------------
+  --- UNION's --- 
+--------------------    
 
     SELECT 
         CASE 
