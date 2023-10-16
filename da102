@@ -1,6 +1,8 @@
 Basic & Intermediate SQL
     Week 2
 
+
+-----------------------------------------------------
     Combining two filter conditions using OR
 -----------------------------------------------------
 
@@ -19,6 +21,8 @@ WHERE 1=1
 ;
 
 
+
+----------------------------------------------------
 Combining an OR statement with a third condition
 ----------------------------------------------------
 
@@ -37,7 +41,9 @@ WHERE 1=1
 			OR arrival_city = 'Aberbeen')
 			AND revenue_from_baggage > 10000
 
-    
+
+
+----------------------------------------------
 Aggregating and Grouping Data using CASE WHEN
 ----------------------------------------------
 
@@ -103,10 +109,16 @@ ORDER BY sales_segment
 
 
 
-    WEEK 3 
 
+
+   
+
+WEEK 3 
+  
+
+--------------
     UNION's 
-    --------
+--------------    
 
     SELECT 
         CASE 
