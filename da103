@@ -115,6 +115,92 @@ group by
  , ps.product_name
 order by
  cs.age_group asc; 
+
+
+
+
+-----------------------------------------------------------
+           --- Window Functions ---
+-----------------------------------------------------------
+
+
+SELECT *,
+			 ROW_NUMBER() OVER (ORDER BY created_at DESC) AS row_number
+
+FROM orders
+
+;
+
+
+SELECT *,
+			 LAG(created_at) OVER (ORDER BY created_at ASC) AS previous_value
+
+FROM orders
+
+
+
+ 
+ ---------------------------------------------------------
+            --- Partitioning Data ---
+ ---------------------------------------------------------
+
+
+ /*First, use WITH to replace the NULLs in the product_id column in order_items with ‘P003’.
+
+Then, show the product name, and revenue for product_ids P001-P003 by customer age_group in ascending order.
+
+HINT: “Customer_id” in the customers table  = “user_id” in other tables
+ */
  
  
+WITH NEW_TBL as (
+  select
+    *
+    , CASE
+        WHEN product_id IS NULL THEN 'P003'
+        ELSE product_id
+      END AS new_product_id
+  from order_items
+)
+
+select
+  cs.age_group
+ , ps.product_name
+  , sum(nt.sale_price) as total_revenue
+from NEW_TBL as nt
+ inner join products as ps on ps.product_id = nt.new_product_id
+  inner join customers as cs on nt.user_id = cs.customer_id
+where 1=1
+ and ps.product_id in ('P001', 'P002', 'P003')
+group by
+  cs.age_group
+ , ps.product_name
+order by
+ cs.age_group asc; 
  
+ 
+
+
+------------------------------------------------------
+      --- Creating Column and Row Totals ---
+------------------------------------------------------
+
+SELECT state AS state,
+       age_group AS age_group,
+       COUNT(customer_id) AS num_customers
+  
+  
+FROM customers
+  
+GROUP BY ROLLUP(state, age_group)
+
+ORDER BY state
+;
+
+
+
+
+
+
+
+
